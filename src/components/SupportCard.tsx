@@ -6,22 +6,21 @@ interface Country {
   label: string;
   currency: string;
   symbol: string;
+  amounts: number[];
 }
 
 const COUNTRIES: Country[] = [
-  { code: "NG", label: "Nigeria — NGN", currency: "NGN", symbol: "₦" },
-  { code: "GH", label: "Ghana — GHS", currency: "GHS", symbol: "₵" },
-  { code: "ZA", label: "South Africa — ZAR", currency: "ZAR", symbol: "R" },
-  { code: "CM", label: "Cameroon — XAF", currency: "XAF", symbol: "FCFA" },
-  { code: "KE", label: "Kenya — KES", currency: "KES", symbol: "KSh" },
-  { code: "UG", label: "Uganda — UGX", currency: "UGX", symbol: "USh" },
-  { code: "US", label: "United States — USD", currency: "USD", symbol: "$" },
-  { code: "GB", label: "United Kingdom — GBP", currency: "GBP", symbol: "£" },
-  { code: "CA", label: "Canada — CAD", currency: "CAD", symbol: "$" },
-  { code: "TZ", label: "Tanzania — TZS", currency: "TZS", symbol: "TSh" },
+  { code: "NG", label: "Nigeria — NGN", currency: "NGN", symbol: "₦", amounts: [500, 1000, 2000, 5000, 10000] },
+  { code: "GH", label: "Ghana — GHS", currency: "GHS", symbol: "₵", amounts: [20, 50, 100, 200, 500] },
+  { code: "ZA", label: "South Africa — ZAR", currency: "ZAR", symbol: "R", amounts: [50, 100, 250, 500, 1000] },
+  { code: "CM", label: "Cameroon — XAF", currency: "XAF", symbol: "FCFA", amounts: [1000, 2500, 5000, 10000, 20000] },
+  { code: "KE", label: "Kenya — KES", currency: "KES", symbol: "KSh", amounts: [200, 500, 1000, 2500, 5000] },
+  { code: "UG", label: "Uganda — UGX", currency: "UGX", symbol: "USh", amounts: [5000, 10000, 25000, 50000, 100000] },
+  { code: "US", label: "United States — USD", currency: "USD", symbol: "$", amounts: [5, 10, 25, 50, 100] },
+  { code: "GB", label: "United Kingdom — GBP", currency: "GBP", symbol: "£", amounts: [5, 10, 20, 50, 100] },
+  { code: "CA", label: "Canada — CAD", currency: "CAD", symbol: "$", amounts: [5, 10, 25, 50, 100] },
+  { code: "TZ", label: "Tanzania — TZS", currency: "TZS", symbol: "TSh", amounts: [5000, 10000, 25000, 50000, 100000] },
 ];
-
-const AMOUNTS = [5, 10, 25];
 
 declare global {
   interface Window {
@@ -31,7 +30,9 @@ declare global {
 
 export default function SupportCard() {
   const [countryCode, setCountryCode] = useState("NG");
-  const [amount, setAmount] = useState(5);
+  const [amount, setAmount] = useState<number>(500);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customValue, setCustomValue] = useState("");
   const [email, setEmail] = useState("");
 
   const country = useMemo(
@@ -39,9 +40,32 @@ export default function SupportCard() {
     [countryCode]
   );
 
+  const handleCountryChange = (code: string) => {
+    setCountryCode(code);
+    const next = COUNTRIES.find((c) => c.code === code)!;
+    setIsCustom(false);
+    setCustomValue("");
+    setAmount(next.amounts[0]);
+  };
+
+  const pickPreset = (a: number) => {
+    setIsCustom(false);
+    setAmount(a);
+  };
+
+  const pickCustom = () => {
+    setIsCustom(true);
+  };
+
+  const effectiveAmount = isCustom ? Number(customValue) || 0 : amount;
+
   const handleSupport = () => {
     if (!email.trim()) {
       alert("Please enter your email to continue.");
+      return;
+    }
+    if (isCustom && effectiveAmount <= 0) {
+      alert("Please enter a valid custom amount.");
       return;
     }
     const publicKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
@@ -51,9 +75,9 @@ export default function SupportCard() {
       return;
     }
     window.FlutterwaveCheckout({
-      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      public_key: publicKey,
       tx_ref: "EMPIREMD-" + Date.now(),
-      amount,
+      amount: effectiveAmount,
       currency: country.currency,
       country: country.code,
       payment_options: "card, banktransfer, mobilemoney, ussd",
@@ -101,7 +125,7 @@ export default function SupportCard() {
           id="country"
           className="field mb-5"
           value={countryCode}
-          onChange={(e) => setCountryCode(e.target.value)}
+          onChange={(e) => handleCountryChange(e.target.value)}
         >
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
@@ -111,24 +135,49 @@ export default function SupportCard() {
         </select>
 
         <label className="block text-xs text-[#8e8e8e] mb-2">Amount</label>
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
-          {AMOUNTS.map((a) => (
+        <div className="grid grid-cols-3 gap-2.5 mb-3">
+          {country.amounts.map((a) => (
             <button
               key={a}
               type="button"
-              onClick={() => setAmount(a)}
+              onClick={() => pickPreset(a)}
               className={`py-3 rounded-xl text-sm font-medium border transition-all ${
-                amount === a
+                !isCustom && amount === a
                   ? "border-wabot-green text-wabot-green bg-wabot-green/5"
                   : "border-black/10 text-ink hover:border-black/25"
               }`}
             >
-              {a}
+              {country.symbol}
+              {a.toLocaleString()}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={pickCustom}
+            className={`py-3 rounded-xl text-sm font-medium border transition-all ${
+              isCustom
+                ? "border-wabot-green text-wabot-green bg-wabot-green/5"
+                : "border-black/10 text-ink hover:border-black/25"
+            }`}
+          >
+            Custom
+          </button>
         </div>
 
-        <label className="block text-xs text-[#8e8e8e] mb-2" htmlFor="email">
+        {isCustom && (
+          <input
+            type="number"
+            min={1}
+            inputMode="numeric"
+            placeholder={`Enter amount in ${country.currency}`}
+            className="field mb-5"
+            value={customValue}
+            onChange={(e) => setCustomValue(e.target.value)}
+            autoFocus
+          />
+        )}
+
+        <label className="block text-xs text-[#8e8e8e] mb-2 mt-2" htmlFor="email">
           Email (for your receipt)
         </label>
         <input
@@ -145,7 +194,7 @@ export default function SupportCard() {
           className="whatsapp-btn w-full !rounded-xl justify-center"
         >
           Support with {country.symbol}
-          {amount}
+          {effectiveAmount ? effectiveAmount.toLocaleString() : "0"}
         </button>
         <p className="text-center text-[11px] text-[#8e8e8e] mt-4">
           Secured by Flutterwave · Card, bank transfer &amp; mobile money accepted
