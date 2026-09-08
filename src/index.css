@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background-color: #edeef5;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .heading-xl {
+    font-family: "Outfit", system-ui, sans-serif;
+    @apply text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.02] tracking-tight;
+  }
+  .body-text {
+    @apply text-sm md:text-base text-[#5c5f66] leading-relaxed;
+  }
+
+  /* WhatsApp-style gradient CTA — from the repo design system */
+  .whatsapp-btn {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    @apply text-white font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 shadow-lg text-center inline-flex items-center justify-center gap-2;
+  }
+  .whatsapp-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  }
+
+  .text-gradient-green {
+    background: linear-gradient(135deg, #00a884 0%, #9fff00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ========== ABSTRACT HOLOGRAM CARD ========== */
+  .holo-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 30px 80px rgba(0, 168, 132, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+  }
+
+  /* rotating conic holographic border */
+  .holo-card::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from var(--holo-angle, 0deg),
+      transparent 0%,
+      rgba(0, 168, 132, 0.8) 10%,
+      rgba(159, 255, 0, 0.9) 20%,
+      transparent 32%,
+      transparent 50%,
+      rgba(37, 211, 102, 0.6) 62%,
+      transparent 78%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: holoSpin 6s linear infinite;
+    pointer-events: none;
+  }
+
+  /* iridescent sheen sweeping across the glass */
+  .holo-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.35) 45%,
+      rgba(159, 255, 0, 0.18) 50%,
+      rgba(0, 168, 132, 0.15) 55%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: holoSheen 5s linear infinite;
+    pointer-events: none;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .field {
+    @apply w-full bg-white border border-black/10 rounded-xl px-4 py-3.5 text-sm text-ink outline-none transition-shadow;
+  }
+  .field:focus {
+    box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.5);
+  }
+}
+
+@keyframes holoSpin {
+  to {
+    --holo-angle: 360deg;
+  }
+}
+
+@property --holo-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-card::before,
+  .holo-card::after,
+  .animate-floating {
+    animation: none;
+  }
+}
