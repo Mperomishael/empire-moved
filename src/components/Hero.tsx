@@ -64,7 +64,7 @@ export default function Hero() {
               >
                 Formerly{" "}
                 <span className="line-through opacity-70">
-                  empiredigitals.space/empire-md
+                  bot.empiredigitals.space/
                 </span>
               </motion.p>
 
