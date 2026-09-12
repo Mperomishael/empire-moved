@@ -52,7 +52,7 @@ export default function Hero() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="body-text text-base md:text-lg max-w-lg mb-4"
               >
-                Get a <strong className="text-ink font-semibold">WhatsApp bot in seconds</strong> — Empire MD
+                Get a <strong className="text-gradient-green italic">WhatsApp bot in seconds</strong> — Empire MD
                 now lives at its new home, with a faster dashboard, instant pairing, and the same
                 zero-code setup.
               </motion.p>
