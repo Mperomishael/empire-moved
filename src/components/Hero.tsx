@@ -40,7 +40,7 @@ export default function Hero() {
                 className="heading-xl mb-6"
               >
                 We have{" "}
-                <span className="text-gradient-green italic">moved</span>
+                <span className="text-gradient-green italic">moved  </span>
                 <span className="inline-flex items-center justify-center w-[22px] md:w-[42px] h-[22px] md:h-[42px] border-2 border-ink rounded-full mx-2 align-middle">
                   <span className="w-2 h-2 bg-wabot-green rounded-full animate-pulse" />
                 </span>
